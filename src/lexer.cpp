@@ -94,6 +94,22 @@ class Lexer {
                 reserve(nw);
                 return nw;
             }
+            std::array<char, 4> specials = std::array<char, 4> {{'>', '<', '=', '!'}};
+            
+            if (std::find(std::begin(specials), std::end(specials), peek) != std::end(specials)) {
+                std::string v = "";
+                while(isalnum(peek)) {
+                    v += peek;
+                    std::cin.get(peek);
+                }
+
+                std::map<std::string, Word>::iterator it = words.find(v);
+                if (it != words.end()) return it->second;
+                Word nw = Word(Tag::ID, v);
+                reserve(nw);
+                return nw;
+            }
+
             Token t = Token(peek);
             peek = ' ';
             return t;
