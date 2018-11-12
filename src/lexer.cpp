@@ -14,11 +14,17 @@ class Lexer {
             peek = ' ';
             reserve(Word(Tag::FALSE, "false"));
             reserve(Word(Tag::TRUE, "true"));
+            reserve(Word(Tag::LT, "<"));
+            reserve(Word(Tag::LTE, "<="));
+            reserve(Word(Tag::EQ, "=="));
+            reserve(Word(Tag::NEQ, "!="));
+            reserve(Word(Tag::GTE, ">="));
+            reserve(Word(Tag::GT, ">"));
         }
         Token scan() {
             std::cout << "scan started\n";
 
-            for (;;std::cin >> peek) {
+            for (;;std::cin.get(peek)) {
                 if (peek == ' ' || peek == '\t') {
                     continue;
                 } else if (peek == '\n') {
@@ -27,23 +33,59 @@ class Lexer {
                     break;
                 }
             }
+            if (peek == '/') {
+                std::cin.get(peek);
+                if (peek == '/') {
+                    std::cin.get(peek);
+                    while (peek!= '\n') std::cin.get(peek);
+                    line++;
+                } else if(peek == '*') {
+                    std::cin.get(peek);
+                    while (peek != '*') {
+                        if (peek == '\n') line++;
+                        if (peek == '/') break;
+                        std::cin.get(peek);
+                    }
+                }
+            }
 
             if (isdigit(peek)) {
                 int v = 0;
                 while(isdigit(peek)) {
                     v = v * 10 + (int)peek;
-                    std::cin >> peek;
+                    std::cin.get(peek);
+                }
+                if (peek == '.') {
+                    float nv = (float)v;
+                    std::cin.get(peek);
+                    int i = 10;
+                    while(isdigit(peek)) {
+                        nv = nv + (float)peek / i;
+                        i *= 10;
+                        std::cin.get(peek);
+                    }
+                    return Float(nv);
                 }
                 return Num(v);
+            }
+
+            if (peek == '.') {
+                float v = 0.0;
+                int i = 10;
+                std::cin.get(peek);
+                while(isdigit(peek)) {
+                    v = v + ((float)peek) / i;
+                    i *= 10;
+                    std::cin.get(peek);
+                }
+                return Float(v);
             }
 
             if (isalpha(peek)) {
                 std::string v = "";
                 while(isalpha(peek) || isdigit(peek)) {
-                    std::cout << "start " << peek << std::endl;
                     v += peek;
                     std::cin.get(peek);
-                    std::cout << "end " << peek << std::endl;
                 }
 
                 std::map<std::string, Word>::iterator it = words.find(v);
