@@ -94,11 +94,10 @@ class Lexer {
                 reserve(nw);
                 return nw;
             }
-            std::array<char, 4> specials = std::array<char, 4> {{'>', '<', '=', '!'}};
             
-            if (std::find(std::begin(specials), std::end(specials), peek) != std::end(specials)) {
+            if (ispunct(peek)) {
                 std::string v = "";
-                while(isalnum(peek)) {
+                while(ispunct(peek)) {
                     v += peek;
                     std::cin.get(peek);
                 }
